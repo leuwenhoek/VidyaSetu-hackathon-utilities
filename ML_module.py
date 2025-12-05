@@ -1,6 +1,18 @@
 import os
 import pandas as pd
 
+class Global_functions:
+    def __init__(self):
+        pass
+
+    def seperate(self,num):
+        import time
+        for i in range (0,num+1):
+            print("-",end="",flush=False)
+            time.sleep(0.01)
+
+
+
 class ML:
     def __init__(self):
         pass
