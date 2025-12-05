@@ -2,6 +2,8 @@ import os
 import pandas as pd
 
 class ML:
+    def __init__(self):
+        pass
     def auto_clean_df(self,df, to_predict):
     
         import pandas as pd 
@@ -58,8 +60,33 @@ class ML:
         
         return df
     
-    def CLI():
+    def Linear_Regression(self,DATA,to_predict):
+        from sklearn.preprocessing import StandardScaler
+        from sklearn.model_selection import train_test_split
+        from sklearn.linear_model import LinearRegression
+        from sklearn.metrics import r2_score
 
+        df = pd.read_csv(DATA)
+        X = df.drop(to_predict,axis=1)
+        Y = df[to_predict]
+        X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.20,random_state=42)
+
+
+        model = LinearRegression()
+        model.fit(X_train,Y_train)
+        Y_pred = model.predict(X_test)
+        
+        r2 = r2_score(Y_test,Y_pred)
+
+        n = X_test.shape[0]         #Rows
+        p = X_test.shape[1]         #Coluns
+
+        adjusted_r2 = 1 - ((1 - r2)*(n-1)/(n-p-1))          #fixed formula
+        adjusted_r2
+
+
+
+    def CLI(self):
         # Data processing
         ML_inst = ML()
         CURRENT_DIR = os.getcwd()
@@ -85,7 +112,7 @@ class ML:
 
 def main():
     ML_instance = ML()
-    ML.CLI()
+    ML_instance.CLI()
     return 0
 
 if __name__ == "__main__":
