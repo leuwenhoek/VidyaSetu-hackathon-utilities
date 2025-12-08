@@ -4,6 +4,7 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+import matplotlib.pyplot as plt
 import os
 import sys
 import time
@@ -19,6 +20,7 @@ class Global_functions:
         print("\n")
 
 class ModelReadyPreprocessor:
+
     def __init__(self):
         self.gf = Global_functions()
         self.label_encoders = {}
@@ -99,24 +101,59 @@ class ModelReadyPreprocessor:
         X = df_model_ready.drop(columns=[target_col])
         y = df_model_ready[target_col]
 
-        X_train, X_test, y_train, y_test = train_test_split(
+        X_train, X_test, Y_train, Y_test = train_test_split(
             X, y, test_size=0.2, random_state=42
         )
         print(f"    - Data split: Train={len(X_train)} rows, Test={len(X_test)} rows.")
 
         # B. Train Model
         model = LinearRegression()
-        model.fit(X_train, y_train)
+        model.fit(X_train, Y_train)
 
         # C. Predict and Evaluate
         y_pred = model.predict(X_test)
 
         print("\n--- Model Performance Metrics (Regression) ---")
-        print(f"R-squared (R2): {r2_score(y_test, y_pred):.4f}")
-        print(f"Mean Absolute Error (MAE): {mean_absolute_error(y_test, y_pred):.4f}")
-        print(f"Mean Squared Error (MSE): {mean_squared_error(y_test, y_pred):.4f}")
-        print(f"Root Mean Squared Error (RMSE): {np.sqrt(mean_squared_error(y_test, y_pred)):.4f}")
+        print(f"R-squared (R2): {r2_score(Y_test, y_pred):.4f}")
+        print(f"Mean Absolute Error (MAE): {mean_absolute_error(Y_test, y_pred):.4f}")
+        print(f"Mean Squared Error (MSE): {mean_squared_error(Y_test, y_pred):.4f}")
+        print(f"Root Mean Squared Error (RMSE): {np.sqrt(mean_squared_error(Y_test, y_pred)):.4f}")
         print("---------------------------------------------")
+
+        # *** FIX: Return y_pred as well ***
+        return X_train, X_test, Y_train, Y_test, y_pred
+
+    # *** FIX 1: Save figure instead of showing it.
+    # *** FIX 2: Added target_col for dynamic axis labels. ***
+    def visualize_prediction_and_test(self, Y_test, y_pred, target_col):
+
+        # Y_test & y_pred must be arrays for plotting
+        Y_test = np.array(Y_test)
+        y_pred = np.array(y_pred)
+
+        plt.figure(figsize=(8,6))
+
+        # Scatter plot
+        plt.scatter(Y_test, y_pred, alpha=0.6, color='darkblue')
+
+        # Perfect prediction line (y=x)
+        min_val = min(Y_test.min(), y_pred.min())
+        max_val = max(Y_test.max(), y_pred.max())
+        plt.plot([min_val, max_val], [min_val, max_val], 'r--', label='Perfect Prediction')
+
+        plt.xlabel(f"Actual {target_col}", fontsize=12)
+        plt.ylabel(f"Predicted {target_col}", fontsize=12)
+        plt.title(f"Actual vs Predicted {target_col} (Linear Regression)", fontsize=14)
+        plt.legend()
+        plt.grid(True, linestyle=':', alpha=0.7)
+        plt.tight_layout()
+        
+        output_filename = 'prediction_vs_actual_plot.png'
+        plt.savefig(output_filename) # Save the plot to a file
+        plt.close() # Close the figure to free memory
+        print(f"\nSaved visualization plot to: {output_filename}")
+        return output_filename
+
 
     def CLI(self):
             self.gf.separate(40, "=")
@@ -193,8 +230,14 @@ class ModelReadyPreprocessor:
                     model_consent = input(f"\n>> [4/5] Run simple Linear Regression test on '{target}'? (y/n): ").strip().lower()
                     if model_consent == 'y':
                         self.gf.separate(30, ".")
-                        self.train_and_evaluate_model(df_model_ready, target)
+                        # Capture all 5 returns including y_pred
+                        X_train, X_test, Y_train, Y_test, y_pred = self.train_and_evaluate_model(df_model_ready, target)
                         self.gf.separate(30, ".")
+                        
+                        # *** FIX 3: Call visualization with the target column and correct data ***
+                        print("\n... [Visualizing] Actual vs Predicted Plot")
+                        self.visualize_prediction_and_test(Y_test, y_pred, target)
+                        
                     else:
                         print("Skipping model evaluation.")
                 else:
