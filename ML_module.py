@@ -193,6 +193,8 @@ class ModelReadyPreprocessor:
             })
             print(info_df)
             self.gf.separate(30, ".")
+            print(raw_df.head())
+            self.gf.separate(30, ".")
     
             target = ""
             while target not in raw_df.columns:
