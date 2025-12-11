@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Form</title>
+</head>
+<body>
+
+    <h2>CO2 Emission Prediction</h2>
+
+    <form action="/predictdata" method="POST">
+
+        <label>Country:</label>
+        <input type="text" name="Country" required><br><br>
+
+        <label>Region:</label>
+        <input type="text" name="Region" required><br><br>
+
+        <label>Date:</label>
+        <input type="date" name="Date" placeholder="01-01-2010" required><br><br>
+
+        <label>Kilotons of CO2:</label>
+        <input type="number" step="0.01" name="Kilotons_of_Co2" required><br><br>
+
+        <button type="submit">Predict</button>
+
+    </form>
+
+</body>
+</html>
